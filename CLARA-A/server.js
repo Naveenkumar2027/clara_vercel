@@ -1518,16 +1518,21 @@ io.on('connection', (socket) => {
   socket.on('webrtc-call-response', ({ callId, accepted, staffEmail }) => {
     try {
       console.log(`🎥 WebRTC call response from ${staffEmail}: ${accepted ? 'accepted' : 'declined'}`);
+      console.log(`🎥 Call ID: ${callId}`);
+      console.log(`🎥 Active calls:`, Array.from(activeCalls.keys()));
       
       const callSession = activeCalls.get(callId);
       if (callSession) {
+        console.log(`🎥 Found call session:`, callSession);
         callSession.status = accepted ? 'accepted' : 'declined';
         
         // Notify client about the response
+        console.log(`🎥 Sending response to client socket: ${callSession.clientSocketId}`);
         io.to(callSession.clientSocketId).emit('webrtc-call-response', {
           callId,
           accepted,
           staffEmail,
+          staffName: callSession.staffName,
           message: accepted ? 'WebRTC call accepted!' : 'WebRTC call declined'
         });
         
@@ -1536,6 +1541,8 @@ io.on('connection', (socket) => {
           // Here you would implement WebRTC signaling
           console.log(`🎥 Starting WebRTC negotiation for call ${callId}`);
         }
+      } else {
+        console.log(`❌ Call session not found for callId: ${callId}`);
       }
     } catch (error) {
       console.error('Error handling WebRTC call response:', error);
@@ -2533,16 +2540,18 @@ app.get('/api/staff/list', (req, res) => {
 
 // Staff interface routes
 app.get('/staff', (req, res) => {
-  // Redirect to the canonical staff login page to avoid confusion
-  res.redirect('/staff-login');
+  // Redirect to the main staff interface
+  res.redirect('/staff-interface');
 });
 
 app.get('/staff-login', (req, res) => {
-  res.sendFile(__dirname + '/public/staff-login.html');
+  // Redirect to the main staff interface
+  res.redirect('/staff-interface');
 });
 
 app.get('/staff-dashboard', (req, res) => {
-  res.sendFile(__dirname + '/public/staff-neon.html');
+  // Redirect to the main staff interface
+  res.redirect('/staff-interface');
 });
 
 app.get('/staff-interface', (req, res) => {
@@ -2596,8 +2605,7 @@ app.get('/api/health', async (req, res) => {
 server.listen(PORT, () => {
   console.log(`🚀 Clara AI Reception System running on port ${PORT}`);
   console.log(`📱 Client Interface: http://localhost:${PORT}`);
-  console.log(`👥 Staff Login: http://localhost:${PORT}/staff-login`);
-  console.log(`📊 Staff Dashboard: http://localhost:${PORT}/staff-dashboard`);
+  console.log(`👥 Staff Interface: http://localhost:${PORT}/staff-interface`);
   console.log(`🎥 Video Call: Integrated into main interfaces`);
   console.log(`🎓 College Demo: http://localhost:${PORT}/college-demo`);
   console.log(`🔗 n8n Test Page: http://localhost:${PORT}/n8n-test`);

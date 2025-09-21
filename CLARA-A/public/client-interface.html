@@ -47,6 +47,34 @@
             opacity: 0.9;
         }
 
+        .header-actions {
+            margin-top: 20px;
+        }
+
+        .staff-login-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .staff-login-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .staff-login-btn i {
+            font-size: 16px;
+        }
+
         .institute-logo {
             width: 80px;
             height: 80px;
@@ -504,6 +532,11 @@
             <div class="institute-logo">🏫</div>
             <h1>Sai Vidya Institute of Technology</h1>
             <p>Welcome! I'm Clara, your AI receptionist. How can I help you today?</p>
+            <div class="header-actions">
+                <a href="/staff-interface" class="staff-login-btn">
+                    <i class="fas fa-user-tie"></i> Staff Login
+                </a>
+            </div>
         </div>
 
         <!-- Main Content -->
@@ -842,13 +875,19 @@
             // WebRTC call response handler
             socket.on('webrtc-call-response', (data) => {
                 console.log('🎥 WebRTC call response received:', data);
+                console.log('🎥 Data accepted:', data.accepted);
+                console.log('🎥 Data staffName:', data.staffName);
+                console.log('🎥 Data callId:', data.callId);
+                
                 const callRequestButton = document.getElementById('callRequestButton');
                 
                 if (data.accepted) {
+                    console.log('✅ Call accepted, showing video display');
                     updateStatus('WebRTC call accepted! Starting video call...', 'success');
                     // Show video call display instead of redirecting
                     showClientVideoCallDisplay(data);
                 } else {
+                    console.log('❌ Call declined');
                     updateStatus('WebRTC call declined', 'warning');
                     callRequestButton.disabled = false;
                     callRequestButton.innerHTML = '<i class="fas fa-video"></i> Call';
@@ -1255,10 +1294,20 @@
 
         // Video call display functions for client
         function showClientVideoCallDisplay(callData) {
+            console.log('🎥 showClientVideoCallDisplay called with:', callData);
+            
             const videoDisplay = document.getElementById('videoCallDisplay');
             const videoCallerName = document.getElementById('clientVideoCallerName');
             const videoCallerDetails = document.getElementById('clientVideoCallerDetails');
             const videoCallStatus = document.getElementById('clientVideoCallStatus');
+            
+            console.log('🎥 Video display element:', videoDisplay);
+            console.log('🎥 Video caller name element:', videoCallerName);
+            
+            if (!videoDisplay) {
+                console.error('❌ Video display element not found!');
+                return;
+            }
             
             videoCallerName.textContent = `Video Call - ${callData.staffName || 'Staff'}`;
             videoCallerDetails.textContent = `Call ID: ${callData.callId}`;
@@ -1266,6 +1315,8 @@
             
             videoDisplay.classList.remove('hidden');
             videoDisplay.style.display = 'flex';
+            
+            console.log('✅ Video call display shown');
         }
 
         function endClientVideoCall() {

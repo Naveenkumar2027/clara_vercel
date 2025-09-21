@@ -1305,6 +1305,20 @@
                 addCallUpdate(data);
             });
 
+            // Test function to add a sample call update (for debugging)
+            window.testCallUpdate = function() {
+                addCallUpdate({
+                    type: 'webrtc-call-request',
+                    callId: 'test_call_123',
+                    clientName: 'Test Client',
+                    clientId: 'test_client_123',
+                    staffEmail: 'test@example.com',
+                    staffName: 'Test Staff',
+                    timestamp: new Date(),
+                    status: 'incoming'
+                });
+            };
+
             // WebRTC call response handler
             socket.on('webrtc-call-response', (data) => {
                 console.log('📞 WebRTC call response:', data);
@@ -1890,6 +1904,8 @@
 
         function acceptWebRTCCall() {
             if (currentWebRTCCall) {
+                console.log('🎥 Accepting WebRTC call:', currentWebRTCCall);
+                
                 socket.emit('webrtc-call-response', {
                     callId: currentWebRTCCall.callId,
                     accepted: true,
@@ -1911,6 +1927,8 @@
                 
                 hideCallNotification();
                 showNotification('WebRTC call accepted!', 'success');
+            } else {
+                console.error('❌ No current WebRTC call to accept');
             }
         }
 
@@ -2029,10 +2047,20 @@
 
         // Video call display functions
         function showVideoCallDisplay(callData) {
+            console.log('🎥 showVideoCallDisplay called with:', callData);
+            
             const videoDisplay = document.getElementById('videoCallDisplay');
             const videoCallerName = document.getElementById('videoCallerName');
             const videoCallerDetails = document.getElementById('videoCallerDetails');
             const videoCallStatus = document.getElementById('videoCallStatus');
+            
+            console.log('🎥 Video display element:', videoDisplay);
+            console.log('🎥 Video caller name element:', videoCallerName);
+            
+            if (!videoDisplay) {
+                console.error('❌ Video display element not found!');
+                return;
+            }
             
             videoCallerName.textContent = `Video Call - ${callData.clientName}`;
             videoCallerDetails.textContent = `Call ID: ${callData.callId}`;
@@ -2040,6 +2068,8 @@
             
             videoDisplay.classList.remove('hidden');
             videoDisplay.style.display = 'flex';
+            
+            console.log('✅ Staff video call display shown');
         }
 
         function endVideoCall() {
